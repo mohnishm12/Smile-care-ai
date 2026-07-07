@@ -1,0 +1,85 @@
+# =============================================================================
+# HealFlow AI — Prometheus Alerting Rules
+# =============================================================================
+
+groups:
+  - name: healflow-alerts
+    interval: 30s
+
+    rules:
+      # --- API Performance Alerts ---
+      - alert: HighAPILatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API latency detected"
+          description: "P95 API response time is {{ $value }}s (threshold: 2s)"
+
+      - alert: CriticalAPILatency
+        expr: histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m])) > 5
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical API latency detected"
+          description: "P99 API response time is {{ $value }}s (threshold: 5s)"
+
+      # --- Error Rate Alerts ---
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High HTTP 5xx error rate"
+          description: "Error rate is {{ $value | humanizePercentage }} (threshold: 5%)"
+
+      - alert: CriticalErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.10
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical HTTP 5xx error rate"
+          description: "Error rate is {{ $value | humanizePercentage }} (threshold: 10%)"
+
+      # --- Queue Depth Alerts ---
+      - alert: QueueBacklog
+        expr: celery_queue_length > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Celery queue backlog detected"
+          description: "Queue length is {{ $value }} (threshold: 1000)"
+
+      - alert: CriticalQueueBacklog
+        expr: celery_queue_length > 5000
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical queue backlog"
+          description: "Queue length is {{ $value }} (threshold: 5000)"
+
+      # --- Service Down Alerts ---
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.instance }} is down"
+          description: "Instance {{ $labels.instance }} has been unreachable for 1 minute"
+
+      # --- Memory Alerts ---
+      - alert: HighMemoryUsage
+        expr: process_resident_memory_bytes > 1e9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is {{ $value | humanize1024 }} (threshold: 1GB)"

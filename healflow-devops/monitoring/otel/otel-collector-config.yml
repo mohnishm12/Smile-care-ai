@@ -1,0 +1,67 @@
+# =============================================================================
+# HealFlow AI — OpenTelemetry Collector Configuration
+# =============================================================================
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 512
+    spike_limit_mib: 128
+  attributes:
+    actions:
+      - key: environment
+        value: ${ENVIRONMENT}
+        action: upsert
+      - key: service.version
+        value: ${APP_VERSION}
+        action: upsert
+
+exporters:
+  # Export to console for debugging (disable in production)
+  debug:
+    verbosity: detailed
+    sampling_initial: 5
+    sampling_thereafter: 1
+
+  # Export to Prometheus (via OTLP HTTP)
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    namespace: healflow
+    send_timestamps: true
+    metric_expiration: 180m
+    resource_to_telemetry_conversion:
+      enabled: true
+
+  # Export to a backend (e.g., Jaeger, Tempo, or cloud APM)
+  # otlp:
+  #   endpoint: "api.honeycomb.io:443"
+  #   headers:
+  #     "x-honeycomb-team": "${HONEYCOMB_API_KEY}"
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, attributes]
+      exporters: [debug]  # Replace with [otlp] in production
+
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, attributes]
+      exporters: [prometheus, debug]  # Remove debug in production
+
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, attributes]
+      exporters: [debug]  # Replace with [otlp] in production

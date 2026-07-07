@@ -1,0 +1,19 @@
+# Environment
+.env
+.env.*
+!.env.example
+
+# SSL Certificates
+nginx/ssl/
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+
+# Docker
+docker-compose.override.yml

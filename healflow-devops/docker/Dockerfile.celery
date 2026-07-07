@@ -1,0 +1,55 @@
+# =============================================================================
+# HealFlow AI — Celery Worker Dockerfile
+# Uses the same base as the backend but runs celery worker instead of uvicorn
+# =============================================================================
+
+# ---------- Builder Stage ----------
+FROM python:3.12-slim AS builder
+
+WORKDIR /build
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        gcc \
+        libpq-dev \
+        python3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY healflow-backend/pyproject.toml healflow-backend/setup.cfg ./
+RUN pip install --no-cache-dir --user --upgrade pip && \
+    pip install --no-cache-dir --user .
+
+COPY healflow-backend/src ./src
+RUN pip install --no-cache-dir --user .
+
+# ---------- Production Stage ----------
+FROM python:3.12-slim AS production
+
+ENV \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        libpq-dev \
+        curl \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN groupadd -r healflow && useradd -r -g healflow -d /app -s /sbin/nologin healflow
+
+WORKDIR /app
+
+COPY --from=builder /root/.local /usr/local
+COPY healflow-backend/src ./src
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD celery -A src.celery_app inspect ping || exit 1
+
+USER healflow
+
+EXPOSE 8000
+
+# Default: run celery worker (override CMD for celery-beat)
+CMD ["celery", "-A", "src.celery_app", "worker", "--loglevel=info", "--concurrency=4", "--max-tasks-per-child=100", "--time-limit=3600"]
