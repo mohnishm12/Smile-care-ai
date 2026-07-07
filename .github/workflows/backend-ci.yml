@@ -10,7 +10,7 @@ on:
     branches: [develop, main]
     paths:
       - "healflow-backend/**"
-      - "healflow-devops/ci-cd/backend-ci.yml"
+      - ".github/workflows/backend-ci.yml"
       - "healflow-devops/docker/Dockerfile.backend"
       - "healflow-devops/docker/Dockerfile.celery"
       - "healflow-devops/docker-compose.yml"
@@ -46,7 +46,7 @@ jobs:
       - name: Run Ruff
         run: |
           cd healflow-backend
-          ruff check src/ tests/ 2>&1 || true
+          ruff check src/ tests/
 
   type-check:
     name: Type Check with mypy
@@ -63,12 +63,12 @@ jobs:
       - name: Install dependencies
         run: |
           cd healflow-backend
-          pip install mypy pydantic pydantic-settings
+          pip install ".[dev]"
 
       - name: Run mypy
         run: |
           cd healflow-backend
-          mypy src/ --strict --ignore-missing-imports 2>&1 || true
+          mypy src/ --ignore-missing-imports
 
   test:
     name: Run Tests
@@ -156,7 +156,27 @@ jobs:
           echo "tags=${{ env.IMAGE_NAME }}:${GIT_SHA},${{ env.IMAGE_NAME }}:latest" >> $GITHUB_OUTPUT
           echo "celery_tags=${{ env.CELERY_IMAGE_NAME }}:${GIT_SHA},${{ env.CELERY_IMAGE_NAME }}:latest" >> $GITHUB_OUTPUT
 
-      - name: Build and push backend image
+      - name: Build backend image (local, for scanning)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: healflow-devops/docker/Dockerfile.backend
+          push: false
+          load: true
+          tags: ${{ env.IMAGE_NAME }}:scan
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Scan backend image with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ env.IMAGE_NAME }}:scan
+          format: table
+          exit-code: "1"
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+
+      - name: Push backend image
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -166,7 +186,27 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Build and push celery image
+      - name: Build celery image (local, for scanning)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: healflow-devops/docker/Dockerfile.celery
+          push: false
+          load: true
+          tags: ${{ env.CELERY_IMAGE_NAME }}:scan
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Scan celery image with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ env.CELERY_IMAGE_NAME }}:scan
+          format: table
+          exit-code: "1"
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+
+      - name: Push celery image
         uses: docker/build-push-action@v6
         with:
           context: .

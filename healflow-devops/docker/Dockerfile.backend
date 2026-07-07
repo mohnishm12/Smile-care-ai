@@ -51,6 +51,9 @@ WORKDIR /app
 # Copy installed packages from builder
 COPY --from=builder /root/.local /usr/local
 COPY healflow-backend/src ./src
+# Alembic migration tooling (used by the one-shot `migrate` compose service)
+COPY healflow-backend/alembic.ini ./alembic.ini
+COPY healflow-backend/alembic ./alembic
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
