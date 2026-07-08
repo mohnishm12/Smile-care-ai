@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import uuid
 
@@ -6,13 +7,17 @@ from fastapi import APIRouter, Depends, HTTPException, Query, WebSocket, WebSock
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.database import get_db
+from src.ai import ASSISTANT_EMAIL, ASSISTANT_USER_ID, generate_reply
+from src.config import get_settings
+from src.database import async_session_maker, get_db
 from src.deps import get_current_user
-from src.models.message import Message
-from src.models.user import User
+from src.models.message import Message, MessageChannel
+from src.models.user import User, UserRole
 from src.schemas.message import MessageCreate, MessageResponse
 from src.security import decode_token
 from src.tasks import embed_message
+
+settings = get_settings()
 
 router = APIRouter(tags=["messages"])
 logger = logging.getLogger("healflow.messages")
@@ -49,7 +54,78 @@ async def create_message(
         logger.warning("Could not enqueue embed task for message %s", message.id, exc_info=True)
 
     await manager.broadcast(MessageResponse.model_validate(message).model_dump(mode="json"))
+
+    if (
+        settings.ai_reply_enabled
+        and message.channel == MessageChannel.CHAT
+        and current_user.id != ASSISTANT_USER_ID
+    ):
+        # Fire-and-forget: the patient's message returns immediately; the
+        # assistant reply arrives over the WebSocket when it's ready.
+        asyncio.create_task(_send_assistant_reply(message.id))
+
     return message
+
+
+async def _ensure_assistant_user(db: AsyncSession) -> None:
+    if await db.get(User, ASSISTANT_USER_ID) is None:
+        db.add(
+            User(
+                id=ASSISTANT_USER_ID,
+                email=ASSISTANT_EMAIL,
+                hashed_password="!disabled-login",
+                full_name="HealFlow Assistant",
+                role=UserRole.STAFF,
+            )
+        )
+        await db.commit()
+
+
+async def _send_assistant_reply(trigger_message_id: uuid.UUID) -> None:
+    try:
+        async with async_session_maker() as db:
+            await _ensure_assistant_user(db)
+
+            result = await db.execute(
+                select(Message)
+                .where(Message.channel == MessageChannel.CHAT)
+                .order_by(Message.created_at.desc())
+                .limit(10)
+            )
+            recent = list(reversed(result.scalars().all()))
+
+            history = [
+                {
+                    "role": "assistant" if m.sender_id == ASSISTANT_USER_ID else "user",
+                    "content": m.body,
+                }
+                for m in recent
+            ]
+            if not history or history[-1]["role"] != "user":
+                return
+
+            reply_text = await generate_reply(history)
+
+            reply = Message(
+                sender_id=ASSISTANT_USER_ID,
+                channel=MessageChannel.CHAT,
+                body=reply_text,
+            )
+            db.add(reply)
+            await db.commit()
+            await db.refresh(reply)
+
+        try:
+            embed_message.delay(str(reply.id))
+        except Exception:
+            logger.warning("Could not enqueue embed task for reply %s", reply.id, exc_info=True)
+
+        await manager.broadcast(MessageResponse.model_validate(reply).model_dump(mode="json"))
+    except Exception:
+        # Reply generation is best-effort; never crash the event loop task.
+        logger.warning(
+            "Assistant reply failed for message %s", trigger_message_id, exc_info=True
+        )
 
 
 class ConnectionManager:

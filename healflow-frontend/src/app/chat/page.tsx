@@ -12,6 +12,10 @@ import {
   WS_BASE,
 } from "@/lib/api";
 
+// Fixed identity seeded by backend migration 0002 — replies from this user
+// are the AI assistant; any other non-self sender is a human team member.
+const ASSISTANT_SENDER_ID = "00000000-0000-4000-8000-00000000a1a1";
+
 export default function ChatPage() {
   const router = useRouter();
   const [user, setUser] = useState<UserResponse | null>(null);
@@ -118,12 +122,21 @@ export default function ChatPage() {
 
         <div className="messages">
           {messages.length === 0 && <p className="muted">No messages yet — say hello.</p>}
-          {messages.map((m) => (
-            <div key={m.id} className="message">
-              {m.body}
-              <time>{new Date(m.created_at).toLocaleString()}</time>
-            </div>
-          ))}
+          {messages.map((m) => {
+            const mine = user !== null && m.sender_id === user.id;
+            const fromAssistant = m.sender_id === ASSISTANT_SENDER_ID;
+            return (
+              <div key={m.id} className={mine ? "message mine" : "message assistant"}>
+                {!mine && (
+                  <span className="sender">
+                    {fromAssistant ? "HealFlow Assistant" : "Care team"}
+                  </span>
+                )}
+                {m.body}
+                <time>{new Date(m.created_at).toLocaleString()}</time>
+              </div>
+            );
+          })}
           <div ref={bottomRef} />
         </div>
 

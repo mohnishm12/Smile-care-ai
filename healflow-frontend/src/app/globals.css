@@ -115,6 +115,25 @@ button:disabled {
   border-radius: 8px;
   padding: 0.5rem 0.8rem;
   font-size: 0.92rem;
+  max-width: 85%;
+}
+
+.message.mine {
+  align-self: flex-end;
+  background: #e0f2f7;
+  border-color: #b5dde7;
+}
+
+.message.assistant {
+  align-self: flex-start;
+}
+
+.message .sender {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 0.15rem;
 }
 
 .message time {

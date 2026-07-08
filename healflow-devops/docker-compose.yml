@@ -97,6 +97,9 @@ services:
     environment:
       <<: *backend-env
       OTEL_SERVICE_NAME: healflow-backend
+      AI_REPLY_ENABLED: ${AI_REPLY_ENABLED:-true}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-haiku-4-5-20251001}
     depends_on:
       postgres:
         condition: service_healthy

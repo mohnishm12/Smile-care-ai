@@ -30,6 +30,13 @@ class Settings(BaseSettings):
 
     cors_origins: list[str] = ["http://localhost:3000"]
 
+    # AI assistant — replies via the Claude API when a key is provided,
+    # otherwise a built-in fallback responder keeps chat functional.
+    ai_reply_enabled: bool = True
+    anthropic_api_key: str = ""
+    anthropic_model: str = "claude-haiku-4-5-20251001"
+    anthropic_max_tokens: int = 512
+
 
 @lru_cache
 def get_settings() -> Settings:
