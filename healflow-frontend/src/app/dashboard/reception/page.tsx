@@ -68,6 +68,23 @@ export default function ReceptionDashboard() {
         listTodaysAppointments(),
       ]);
 
+      // A 403 means the signed-in account lacks a staff role — say so
+      // plainly instead of a generic load failure.
+      const forbidden = [ov, esc, appts].some(
+        (r) =>
+          r.status === "rejected" &&
+          r.reason instanceof ApiError &&
+          r.reason.status === 403,
+      );
+      if (forbidden) {
+        setError(
+          "This account doesn't have staff access. Sign in with a staff, " +
+            "doctor, or clinic admin account to view the dashboard.",
+        );
+        setLoading(false);
+        return;
+      }
+
       if (ov.status === "fulfilled") setOverview(ov.value);
       else if (handleAuthError(ov.reason)) return;
       else problems.push("analytics overview");

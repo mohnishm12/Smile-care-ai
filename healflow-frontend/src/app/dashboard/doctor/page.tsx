@@ -175,7 +175,14 @@ export default function DoctorDashboard() {
       } catch (err) {
         if (handleAuthError(err)) return;
         setAppointments([]);
-        setListError("Failed to load today's appointments.");
+        if (err instanceof ApiError && err.status === 403) {
+          setListError(
+            "This account doesn't have staff access. Sign in with a staff, " +
+              "doctor, or clinic admin account to view the dashboard.",
+          );
+        } else {
+          setListError("Failed to load today's appointments.");
+        }
       }
     })();
   }, [router, handleAuthError]);
