@@ -142,7 +142,14 @@ async def _process_message(message: dict[str, Any], phone_number_id: str) -> Non
         else:
             body = f"[{msg_type or 'unknown'} message received]"
 
-        db.add(Message(sender_id=patient.id, channel=MessageChannel.WHATSAPP, body=body))
+        db.add(
+            Message(
+                sender_id=patient.id,
+                conversation_user_id=patient.id,
+                channel=MessageChannel.WHATSAPP,
+                body=body,
+            )
+        )
         await db.commit()
 
         if msg_type == "text":
@@ -164,7 +171,14 @@ async def _process_message(message: dict[str, Any], phone_number_id: str) -> Non
             )
 
         await _ensure_assistant_user(db)
-        db.add(Message(sender_id=ASSISTANT_USER_ID, channel=MessageChannel.WHATSAPP, body=reply))
+        db.add(
+            Message(
+                sender_id=ASSISTANT_USER_ID,
+                conversation_user_id=patient.id,
+                channel=MessageChannel.WHATSAPP,
+                body=reply,
+            )
+        )
         await db.commit()
 
     await whatsapp_client.send_text(wa_number, reply, phone_number_id)

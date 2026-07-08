@@ -27,10 +27,15 @@ export interface UserResponse {
 export interface MessageResponse {
   id: string;
   sender_id: string;
+  conversation_user_id?: string | null;
   channel: string;
   body: string;
   created_at: string;
 }
+
+// Fixed identity seeded by backend migration 0002 — messages from this
+// sender are the AI assistant.
+export const ASSISTANT_SENDER_ID = "00000000-0000-4000-8000-00000000a1a1";
 
 class ApiError extends Error {
   constructor(
@@ -181,6 +186,72 @@ export function sendMessage(body: string) {
     method: "POST",
     body: JSON.stringify({ channel: "chat", body }),
   });
+}
+
+// ---- Reception workspace endpoints ----
+
+export interface ConversationSummary {
+  patient_id: string;
+  patient_name: string;
+  last_message: string;
+  last_message_at: string;
+  last_sender_kind: "patient" | "assistant" | "staff";
+  unread_count: number;
+  ai_paused: boolean;
+  high_priority: boolean;
+  open_escalations: number;
+}
+
+export function listConversations() {
+  return request<ConversationSummary[]>("/api/reception/conversations");
+}
+
+export function listPatientMessages(patientId: string, limit = 200) {
+  return request<MessageResponse[]>(
+    `/api/messages?patient_id=${encodeURIComponent(patientId)}&limit=${limit}`,
+  );
+}
+
+export function sendClinicReply(patientId: string, body: string) {
+  return request<MessageResponse>(
+    `/api/reception/conversations/${encodeURIComponent(patientId)}/send`,
+    { method: "POST", body: JSON.stringify({ body }) },
+  );
+}
+
+export function takeoverConversation(patientId: string) {
+  return request<{ ai_paused: boolean }>(
+    `/api/reception/conversations/${encodeURIComponent(patientId)}/takeover`,
+    { method: "POST" },
+  );
+}
+
+export function resumeConversation(patientId: string) {
+  return request<{ ai_paused: boolean }>(
+    `/api/reception/conversations/${encodeURIComponent(patientId)}/resume`,
+    { method: "POST" },
+  );
+}
+
+export function suggestReply(patientId: string) {
+  return request<{ suggestion: string }>(
+    `/api/reception/conversations/${encodeURIComponent(patientId)}/suggest`,
+    { method: "POST" },
+  );
+}
+
+export function markConversationRead(patientId: string) {
+  return request<{ ok: boolean }>(
+    `/api/reception/conversations/${encodeURIComponent(patientId)}/read`,
+    { method: "POST" },
+  );
+}
+
+export function ackEscalation(escalationId: string) {
+  return request<{ id: string; acknowledged: boolean }>(
+    `/api/staff/escalations/${encodeURIComponent(escalationId)}/ack`,
+    { method: "POST" },
+  );
 }
 
 export { ApiError };

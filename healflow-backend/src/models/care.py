@@ -215,6 +215,12 @@ class PatientProfile(Base):
     insurance_member_id: Mapped[str] = mapped_column(String(128), default="", nullable=False)
     family_notes: Mapped[str] = mapped_column(Text, default="", nullable=False)
     high_priority: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    # Reception workspace: when True the runtime stays silent in this
+    # conversation — a human has taken over. Resume sets it back to False.
+    ai_paused: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    last_read_by_staff_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
     )

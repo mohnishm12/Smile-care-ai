@@ -17,6 +17,7 @@ export default function StaffNav() {
       <Link href="/">Home</Link>
       <Link href="/dashboard/reception">Reception</Link>
       <Link href="/dashboard/doctor">Doctor</Link>
+      <Link href="/reception">Workspace</Link>
       <span className="spacer" />
       <button type="button" className="nav-link-button" onClick={signOut}>
         Sign out

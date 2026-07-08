@@ -31,7 +31,12 @@ def send_system_message(db: Session, patient_id: uuid.UUID, body: str) -> Messag
     ``PatientProfile.whatsapp_number`` via ``patient_id`` and send through the
     WhatsApp Business API in addition to the chat row.
     """
-    message = Message(sender_id=ASSISTANT_USER_ID, channel=MessageChannel.CHAT, body=body)
+    message = Message(
+        sender_id=ASSISTANT_USER_ID,
+        conversation_user_id=patient_id,
+        channel=MessageChannel.CHAT,
+        body=body,
+    )
     db.add(message)
     logger.info("system message queued for patient %s", patient_id)
     return message

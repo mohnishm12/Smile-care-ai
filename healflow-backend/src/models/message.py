@@ -28,6 +28,12 @@ class Message(Base):
     sender_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("healflow.users.id"), nullable=False
     )
+    # The patient whose conversation this message belongs to. Equals sender_id
+    # for patient-sent messages; points at the patient for assistant/staff
+    # replies. Nullable only for pre-0005 historic assistant rows.
+    conversation_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), nullable=True, index=True
+    )
     channel: Mapped[MessageChannel] = mapped_column(
         SAEnum(
             MessageChannel,

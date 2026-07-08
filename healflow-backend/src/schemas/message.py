@@ -14,6 +14,7 @@ class MessageCreate(BaseModel):
 class MessageResponse(BaseModel):
     id: uuid.UUID
     sender_id: uuid.UUID
+    conversation_user_id: uuid.UUID | None = None
     channel: MessageChannel
     body: str
     created_at: datetime

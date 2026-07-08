@@ -7,7 +7,7 @@ from sqlalchemy import text
 
 from src.config import get_settings
 from src.database import engine
-from src.routers import auth, messages, staff, whatsapp
+from src.routers import auth, messages, reception, staff, whatsapp
 
 settings = get_settings()
 
@@ -63,6 +63,7 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(messages.router)
+app.include_router(reception.router)
 app.include_router(staff.router)
 app.include_router(whatsapp.router)
 

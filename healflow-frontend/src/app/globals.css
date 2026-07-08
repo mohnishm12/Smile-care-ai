@@ -408,3 +408,409 @@ a {
   font-weight: 600;
   color: var(--primary);
 }
+
+/* ---- Reception communication workspace ---- */
+
+.ws-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem 1rem 0;
+}
+
+.ws-header .nav-row {
+  margin-bottom: 0.75rem;
+}
+
+.ws-layout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr) 300px;
+  gap: 0.75rem;
+  flex: 1;
+  min-height: 0;
+  padding-bottom: 1rem;
+}
+
+.ws-title {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.ws-pad {
+  padding: 0.75rem 0.9rem;
+}
+
+.ws-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+/* Left pane: conversation list */
+
+.conv-pane {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.conv-pane-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0.75rem 0.9rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.conv-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.conv-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  padding: 0.6rem 0.9rem;
+  color: var(--text);
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.conv-item:hover {
+  background: var(--bg);
+}
+
+.conv-item.selected {
+  background: #e0f2f7;
+  box-shadow: inset 3px 0 0 var(--primary);
+}
+
+.conv-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.conv-name {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.priority-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--danger);
+}
+
+.conv-time {
+  flex: none;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.conv-preview {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 0.1rem 0 0.3rem;
+}
+
+.conv-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.chip {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 0.05rem 0.5rem;
+  letter-spacing: 0.02em;
+}
+
+.chip.ai {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.chip.human {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.chip.escalation {
+  background: #fee2e2;
+  color: var(--danger);
+}
+
+.chip.priority {
+  background: #fee2e2;
+  color: var(--danger);
+}
+
+.unread-badge {
+  margin-left: auto;
+  min-width: 1.2rem;
+  text-align: center;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.05rem 0.4rem;
+}
+
+/* Middle pane: thread */
+
+.thread-pane {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.thread-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 0.9rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.thread-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.thread-messages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.9rem;
+  background: var(--bg);
+}
+
+.bubble {
+  max-width: 78%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.9rem;
+  background: var(--surface);
+  align-self: flex-start;
+}
+
+.bubble.staff {
+  align-self: flex-end;
+  background: #e0f2f7;
+  border-color: #b5dde7;
+}
+
+.bubble-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 0.1rem;
+}
+
+.bubble-body {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.bubble-time {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.65rem 0.9rem;
+  border-top: 1px solid var(--border);
+}
+
+.composer textarea {
+  margin-bottom: 0;
+  resize: vertical;
+  min-height: 2.6rem;
+}
+
+.composer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.ghost-button {
+  background: var(--surface);
+  color: var(--primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+}
+
+.ghost-button:hover {
+  background: var(--bg);
+  color: var(--primary-hover);
+}
+
+.ghost-button:disabled {
+  color: var(--text-muted);
+}
+
+/* Right pane: patient context */
+
+.context-pane {
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.9rem;
+  font-size: 0.88rem;
+}
+
+.context-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.context-email {
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.context-section {
+  margin-top: 0.9rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.context-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+}
+
+.context-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.15rem 0;
+}
+
+.pain-pill {
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 0.05rem 0.5rem;
+  background: #dcfce7;
+  color: #166534;
+}
+
+.pain-pill.moderate {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.pain-pill.severe {
+  background: #fee2e2;
+  color: var(--danger);
+}
+
+.ack-button {
+  margin-top: 0.4rem;
+  background: var(--surface);
+  color: var(--primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.78rem;
+}
+
+.ack-button:hover {
+  background: var(--bg);
+  color: var(--primary-hover);
+}
+
+.qa-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.qa-row .ghost-button {
+  flex: 1;
+}
+
+/* Collapse gracefully below 900px: stack the panes. */
+@media (max-width: 900px) {
+  .ws-shell {
+    height: auto;
+  }
+
+  .ws-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .conv-pane {
+    max-height: 40vh;
+  }
+
+  .thread-pane {
+    min-height: 60vh;
+  }
+
+  .context-pane {
+    max-height: none;
+  }
+}
