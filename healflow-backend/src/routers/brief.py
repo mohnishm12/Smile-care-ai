@@ -31,9 +31,18 @@ logger = logging.getLogger("healflow.brief")
 
 class BriefResponse(BaseModel):
     greeting: str
+    clinic_name: str
     attention_count: int
     decisions: list[dict]
     generated_at: datetime
+
+
+def _patient_id_from_stream(stream_id: str) -> uuid.UUID | None:
+    try:
+        middle = stream_id.split("patient-", 1)[1].split("-clinic-", 1)[0]
+        return uuid.UUID(middle)
+    except (ValueError, IndexError):
+        return None
 
 
 async def _staff(current_user: User = Depends(get_current_user)) -> User:
@@ -80,9 +89,28 @@ async def get_brief(
     decisions = await anyio.to_thread.run_sync(
         _generate_sync, tenant_id, str(clinic.id)
     )
+
+    # Enrich with patient names at the read boundary — names are presentation,
+    # not clinical logic, so the immutable Decision stays name-free.
+    patient_ids = {
+        pid
+        for d in decisions
+        if (pid := _patient_id_from_stream(d.get("stream_id", ""))) is not None
+    }
+    names: dict[uuid.UUID, str] = {}
+    if patient_ids:
+        rows = (
+            await db.execute(select(User.id, User.full_name).where(User.id.in_(patient_ids)))
+        ).all()
+        names = {row.id: row.full_name for row in rows}
+    for d in decisions:
+        pid = _patient_id_from_stream(d.get("stream_id", ""))
+        d["patient_name"] = names.get(pid, "") if pid else ""
+
     now = datetime.now(UTC)
     return BriefResponse(
         greeting=_greeting(staff.full_name, now),
+        clinic_name=clinic.name,
         attention_count=len(decisions),
         decisions=decisions,
         generated_at=now,
