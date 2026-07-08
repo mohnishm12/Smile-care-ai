@@ -33,3 +33,6 @@ npm-debug.log*
 **/.terraform/
 *.tfstate
 *.tfstate.*
+
+# TypeScript incremental build info
+*.tsbuildinfo
