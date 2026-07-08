@@ -254,4 +254,91 @@ export function ackEscalation(escalationId: string) {
   );
 }
 
+// ---- Morning Brief (Meridian) ----
+
+export type TrustTier = "ASK" | "DRAFT" | "ACT";
+
+export interface TrustInfo {
+  action_class: string;
+  tier: TrustTier;
+  lb: number;
+  n: number;
+}
+
+export interface RecommendedAction {
+  action: string;
+  action_class: string;
+  tier: TrustTier;
+}
+
+export interface RecoveryComponent {
+  kind: string;
+  delta: number;
+  evidence?: string[];
+  // Components carry rule-specific extras (day, count, from_day, to_day…).
+  [key: string]: unknown;
+}
+
+export interface BriefDecision {
+  decision_id: string;
+  stream_id: string;
+  hazard: string;
+  level: "critical" | "high" | "watch";
+  summary: string;
+  why: string[];
+  evidence: string[];
+  rules_fired: string[];
+  model_id: string;
+  confidence: number;
+  trust: TrustInfo;
+  recommended_action: RecommendedAction;
+  if_ignored: string;
+  recovery_score: number | null;
+  recovery_components: RecoveryComponent[];
+  // Not emitted by the kernel today (the body carries only stream_id); typed
+  // optional so the surface lights up the moment the backend adds it.
+  patient_name?: string | null;
+}
+
+export interface BriefResponse {
+  greeting: string;
+  attention_count: number;
+  decisions: BriefDecision[];
+  generated_at: string;
+}
+
+export interface ActResult {
+  executed: string;
+  [key: string]: unknown;
+}
+
+export function getBrief() {
+  return request<BriefResponse>("/api/brief");
+}
+
+export function actOnDecision(decisionId: string, action: string) {
+  return request<ActResult>("/api/brief/act", {
+    method: "POST",
+    body: JSON.stringify({ decision_id: decisionId, action }),
+  });
+}
+
 export { ApiError };
+
+// ---- Demo clinic seeding (public, no auth) ----
+
+export interface DemoSeedResponse {
+  access_token: string;
+  refresh_token: string;
+  staff_name: string;
+  clinic_name: string;
+}
+
+/**
+ * Provisions a throwaway demo clinic seeded with realistic patients and
+ * returns staff credentials. POST /api/demo/seed is intentionally
+ * unauthenticated — no bearer token is required or expected.
+ */
+export function seedDemo() {
+  return request<DemoSeedResponse>("/api/demo/seed", { method: "POST" });
+}

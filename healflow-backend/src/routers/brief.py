@@ -63,8 +63,13 @@ async def _active_clinic(db: AsyncSession) -> Clinic:
 def _greeting(name: str, now: datetime) -> str:
     hour = now.hour
     part = "morning" if hour < 12 else "afternoon" if hour < 18 else "evening"
-    first = name.split()[0] if name else "there"
-    return f"Good {part}, {first}."
+    # Keep a title with its name ("Dr. Shah"); otherwise use the first name.
+    tokens = name.split()
+    if tokens and tokens[0].rstrip(".").lower() in ("dr", "mr", "mrs", "ms", "prof"):
+        who = " ".join(tokens[:2])
+    else:
+        who = tokens[0] if tokens else "there"
+    return f"Good {part}, {who}."
 
 
 def _generate_sync(tenant_id: str, clinic_id: str) -> list[dict]:

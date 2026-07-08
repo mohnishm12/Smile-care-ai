@@ -102,6 +102,10 @@ export default function LoginPage() {
             </>
           )}
         </p>
+        <p className="muted" style={{ marginTop: "1.25rem" }}>
+          <strong>Meridian</strong> — the clinic operating system.{" "}
+          <a href="/home">See what it does</a>
+        </p>
       </div>
     </main>
   );
