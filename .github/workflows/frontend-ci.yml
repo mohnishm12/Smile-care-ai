@@ -10,7 +10,7 @@ on:
     branches: [develop, main]
     paths:
       - "healflow-frontend/**"
-      - "healflow-devops/ci-cd/frontend-ci.yml"
+      - ".github/workflows/frontend-ci.yml"
       - "healflow-devops/docker/Dockerfile.frontend"
   pull_request:
     branches: [develop]
@@ -44,7 +44,7 @@ jobs:
       - name: Run ESLint
         run: |
           cd healflow-frontend
-          npm run lint 2>&1 || true
+          npm run lint
 
   type-check:
     name: Type Check with TypeScript
@@ -67,7 +67,7 @@ jobs:
       - name: Run TypeScript type check
         run: |
           cd healflow-frontend
-          npm run type-check 2>&1 || true
+          npm run type-check
 
   build:
     name: Build Application
@@ -124,7 +124,27 @@ jobs:
           GIT_SHA=$(git rev-parse --short HEAD)
           echo "tags=${{ env.IMAGE_NAME }}:${GIT_SHA},${{ env.IMAGE_NAME }}:latest" >> $GITHUB_OUTPUT
 
-      - name: Build and push frontend image
+      - name: Build frontend image (local, for scanning)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: healflow-devops/docker/Dockerfile.frontend
+          push: false
+          load: true
+          tags: ${{ env.IMAGE_NAME }}:scan
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Scan frontend image with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ env.IMAGE_NAME }}:scan
+          format: table
+          exit-code: "1"
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+
+      - name: Push frontend image
         uses: docker/build-push-action@v6
         with:
           context: .
