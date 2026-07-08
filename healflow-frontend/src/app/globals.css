@@ -162,3 +162,249 @@ button:disabled {
 a {
   color: var(--primary);
 }
+
+/* ---- Staff dashboards ---- */
+
+.container-wide {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.nav-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+}
+
+.nav-row .spacer {
+  flex: 1;
+}
+
+.nav-link-button {
+  background: none;
+  border: none;
+  color: var(--primary);
+  padding: 0;
+  font-size: 0.9rem;
+  text-decoration: underline;
+}
+
+.nav-link-button:hover {
+  background: none;
+  color: var(--primary-hover);
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+}
+
+.stat-value {
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.stat-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.section-title {
+  font-size: 1.05rem;
+  margin: 0 0 0.75rem;
+}
+
+.esc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.esc-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  border-radius: 8px;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.9rem;
+}
+
+.esc-item.critical {
+  border-left-color: var(--danger);
+}
+
+.esc-item.high {
+  border-left-color: #d97706;
+}
+
+.esc-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.2rem;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 0.1rem 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.badge.critical {
+  background: #fee2e2;
+  color: var(--danger);
+}
+
+.badge.high {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge.ack {
+  background: #dcfce7;
+  color: #166534;
+  text-transform: none;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.data-table th,
+.data-table td {
+  text-align: left;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table th {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.dash-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .dash-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.patient-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.patient-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.patient-item:hover {
+  background: var(--bg);
+}
+
+.patient-item.selected {
+  border-color: var(--primary);
+  outline: 1px solid var(--primary);
+  background: #e0f2f7;
+}
+
+.adherence-bar {
+  display: flex;
+  height: 14px;
+  border-radius: 7px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin: 0.4rem 0 0.3rem;
+}
+
+.adherence-bar .taken {
+  background: #16a34a;
+}
+
+.adherence-bar .missed {
+  background: var(--danger);
+}
+
+.adherence-bar .pending {
+  background: #d1d5db;
+}
+
+.legend {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.legend .dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  margin-right: 0.3rem;
+}
+
+.pain-chart {
+  width: 100%;
+  height: auto;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.timeline-section {
+  margin-top: 1.25rem;
+}
+
+.msg-excerpt {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.88rem;
+  margin-bottom: 0.4rem;
+}
+
+.msg-excerpt .who {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--primary);
+}

@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, WebSocket, WebSock
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.ai import ASSISTANT_EMAIL, ASSISTANT_USER_ID, generate_reply
+from src.ai import ASSISTANT_EMAIL, ASSISTANT_USER_ID, generate_agent_reply
 from src.config import get_settings
 from src.database import async_session_maker, get_db
 from src.deps import get_current_user
@@ -86,11 +86,22 @@ async def _send_assistant_reply(trigger_message_id: uuid.UUID) -> None:
         async with async_session_maker() as db:
             await _ensure_assistant_user(db)
 
+            trigger = await db.get(Message, trigger_message_id)
+            if trigger is None:
+                return
+            patient = await db.get(User, trigger.sender_id)
+            if patient is None:
+                return
+
+            # Conversation history: this patient's exchange with the assistant.
             result = await db.execute(
                 select(Message)
-                .where(Message.channel == MessageChannel.CHAT)
+                .where(
+                    Message.channel == MessageChannel.CHAT,
+                    Message.sender_id.in_([trigger.sender_id, ASSISTANT_USER_ID]),
+                )
                 .order_by(Message.created_at.desc())
-                .limit(10)
+                .limit(12)
             )
             recent = list(reversed(result.scalars().all()))
 
@@ -104,7 +115,7 @@ async def _send_assistant_reply(trigger_message_id: uuid.UUID) -> None:
             if not history or history[-1]["role"] != "user":
                 return
 
-            reply_text = await generate_reply(history)
+            reply_text = await generate_agent_reply(db, patient, history)
 
             reply = Message(
                 sender_id=ASSISTANT_USER_ID,

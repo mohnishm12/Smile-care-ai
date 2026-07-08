@@ -37,6 +37,11 @@ class Settings(BaseSettings):
     anthropic_model: str = "claude-haiku-4-5-20251001"
     anthropic_max_tokens: int = 512
 
+    # WhatsApp Cloud API (Meta) — webhook verification + outbound sends.
+    whatsapp_verify_token: str = ""
+    whatsapp_access_token: str = ""
+    whatsapp_api_version: str = "v21.0"
+
 
 @lru_cache
 def get_settings() -> Settings:

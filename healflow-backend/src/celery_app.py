@@ -40,4 +40,28 @@ celery_app.conf.beat_schedule = {
         "task": "src.tasks.cleanup_expired_sessions",
         "schedule": crontab(minute=0),  # hourly
     },
+    "send-appointment-reminders": {
+        "task": "src.tasks.send_appointment_reminders",
+        "schedule": crontab(minute="*/15"),
+    },
+    "send-medication-reminders": {
+        "task": "src.tasks.send_medication_reminders",
+        "schedule": crontab(minute="*/5"),
+    },
+    "nag-medication": {
+        "task": "src.tasks.nag_medication",
+        "schedule": crontab(minute="*/5"),
+    },
+    "send-followup-checkins": {
+        "task": "src.tasks.send_followup_checkins",
+        "schedule": crontab(minute="*/15"),
+    },
+    "request-feedback": {
+        "task": "src.tasks.request_feedback",
+        "schedule": crontab(minute="*/30"),
+    },
+    "mark-no-shows": {
+        "task": "src.tasks.mark_no_shows",
+        "schedule": crontab(minute=0),  # hourly
+    },
 }

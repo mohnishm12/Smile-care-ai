@@ -86,6 +86,92 @@ export function getMe() {
   return request<UserResponse>("/api/auth/me");
 }
 
+// ---- Staff & analytics endpoints ----
+
+export interface AnalyticsOverview {
+  todays_appointments: number;
+  missed_appointments: number;
+  revenue: number;
+  currency: string;
+  avg_rating: number | null;
+  followup_completion_rate: number;
+  response_rate: number;
+  open_escalations: number;
+}
+
+export interface Escalation {
+  id: string;
+  patient_name: string;
+  severity: "high" | "critical";
+  reason: string;
+  trigger_text: string;
+  created_at: string;
+  acknowledged: boolean;
+}
+
+export interface StaffAppointment {
+  id: string;
+  patient_name: string;
+  doctor_name: string;
+  scheduled_at: string;
+  status: string;
+  // Present when the backend exposes the linked patient; used to open the
+  // patient timeline from the doctor view.
+  patient_id?: string;
+}
+
+export interface CheckinEntry {
+  day_number: number;
+  pain_level: number;
+  symptoms: Record<string, unknown>;
+  responded_at: string;
+}
+
+export interface MedicationAdherence {
+  taken: number;
+  missed: number;
+  pending: number;
+}
+
+export interface TimelineMessage {
+  body: string;
+  created_at: string;
+  from_assistant: boolean;
+}
+
+export interface PatientSummary {
+  id: string;
+  full_name: string;
+  email: string;
+}
+
+export interface PatientTimeline {
+  patient: PatientSummary;
+  appointments: StaffAppointment[];
+  checkins: CheckinEntry[];
+  medication_adherence: MedicationAdherence;
+  escalations: Escalation[];
+  recent_messages: TimelineMessage[];
+}
+
+export function getAnalyticsOverview() {
+  return request<AnalyticsOverview>("/api/analytics/overview");
+}
+
+export function listEscalations() {
+  return request<Escalation[]>("/api/staff/escalations");
+}
+
+export function listTodaysAppointments() {
+  return request<StaffAppointment[]>("/api/staff/appointments/today");
+}
+
+export function getPatientTimeline(patientId: string) {
+  return request<PatientTimeline>(
+    `/api/staff/patients/${encodeURIComponent(patientId)}/timeline`,
+  );
+}
+
 export function listMessages() {
   return request<MessageResponse[]>("/api/messages");
 }
