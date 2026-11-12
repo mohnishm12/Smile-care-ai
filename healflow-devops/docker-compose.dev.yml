@@ -1,0 +1,39 @@
+# =============================================================================
+# HealFlow AI — Development overlay
+# Publishes internal service ports to the host for direct access/debugging.
+# Never use in production — the base file intentionally exposes only nginx.
+#
+# Usage:
+#   docker compose -f healflow-devops/docker-compose.yml \
+#                  -f healflow-devops/docker-compose.dev.yml up -d
+# =============================================================================
+
+services:
+  postgres:
+    ports:
+      - "5432:5432"
+
+  redis:
+    ports:
+      - "6379:6379"
+
+  backend:
+    ports:
+      - "8000:8000"
+
+  frontend:
+    ports:
+      - "3000:3000"
+
+  prometheus:
+    ports:
+      - "9090:9090"
+
+  grafana:
+    ports:
+      - "3001:3000"
+
+  otel-collector:
+    ports:
+      - "4317:4317"
+      - "4318:4318"

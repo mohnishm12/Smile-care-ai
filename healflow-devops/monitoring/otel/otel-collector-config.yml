@@ -21,10 +21,10 @@ processors:
   attributes:
     actions:
       - key: environment
-        value: ${ENVIRONMENT}
+        value: ${env:ENVIRONMENT:-development}
         action: upsert
       - key: service.version
-        value: ${APP_VERSION}
+        value: ${env:APP_VERSION:-0.1.0}
         action: upsert
 
 exporters:
