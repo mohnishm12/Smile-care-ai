@@ -61,7 +61,8 @@ jobs:
   terraform-apply:
     name: Terraform Apply
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Off until AWS secrets exist. Set repo variable DEPLOY_ENABLED=true to turn on.
+    if: vars.DEPLOY_ENABLED == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment: production
     steps:
       - uses: actions/checkout@v4

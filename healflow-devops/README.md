@@ -145,6 +145,9 @@ Workflows live in `.github/workflows/` (GitHub Actions only discovers them there
 Required repository secrets: `DOCKER_USERNAME`, `DOCKER_PASSWORD`,
 `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`.
 
+Image push and Terraform apply stay off until you set the repository variable
+`DEPLOY_ENABLED` to `true` (Settings → Secrets and variables → Actions → Variables).
+
 ## Monitoring
 
 ### Prometheus Alert Rules

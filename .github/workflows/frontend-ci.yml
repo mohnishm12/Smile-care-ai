@@ -105,7 +105,8 @@ jobs:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
     needs: [build]
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main')
+    # Off until registry secrets exist. Set repo variable DEPLOY_ENABLED=true to turn on.
+    if: vars.DEPLOY_ENABLED == 'true' && github.event_name == 'push' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main')
     steps:
       - uses: actions/checkout@v4
 
