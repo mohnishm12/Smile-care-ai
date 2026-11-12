@@ -26,11 +26,13 @@ CREATE TABLE IF NOT EXISTS healflow.meridian_events (
 CREATE INDEX IF NOT EXISTS ix_meridian_events_replay
     ON healflow.meridian_events (recorded_at, stream_id, seq);
 CREATE TABLE IF NOT EXISTS healflow.meridian_checkpoints (
-    projector varchar(96) PRIMARY KEY, last_event_id uuid NOT NULL, last_seq_key varchar(256) NOT NULL);
+    projector varchar(96) PRIMARY KEY, last_event_id uuid NOT NULL,
+    last_seq_key varchar(256) NOT NULL);
 CREATE TABLE IF NOT EXISTS healflow.meridian_applied (
     projector varchar(96) NOT NULL, event_id uuid NOT NULL, PRIMARY KEY (projector, event_id));
 CREATE TABLE IF NOT EXISTS healflow.rm_recovery (
-    stream_id varchar(128) PRIMARY KEY, tenant_id varchar(64) NOT NULL, episode varchar(128) NOT NULL,
+    stream_id varchar(128) PRIMARY KEY, tenant_id varchar(64) NOT NULL,
+    episode varchar(128) NOT NULL,
     score integer NOT NULL, components jsonb NOT NULL, evidence jsonb NOT NULL,
     engine_version varchar(32) NOT NULL, computed_from_seq bigint NOT NULL);
 CREATE TABLE IF NOT EXISTS healflow.rm_risk (
@@ -41,7 +43,8 @@ CREATE TABLE IF NOT EXISTS healflow.rm_trust (
     tenant_id varchar(64) NOT NULL, action_class varchar(96) NOT NULL, outcomes jsonb NOT NULL,
     engine_version varchar(32) NOT NULL, PRIMARY KEY (tenant_id, action_class));
 CREATE TABLE IF NOT EXISTS healflow.rm_decisions (
-    decision_id varchar(160) PRIMARY KEY, tenant_id varchar(64) NOT NULL, as_of timestamptz NOT NULL,
+    decision_id varchar(160) PRIMARY KEY, tenant_id varchar(64) NOT NULL,
+    as_of timestamptz NOT NULL,
     rank integer NOT NULL, priority numeric(18,4) NOT NULL, body jsonb NOT NULL);
 """
 

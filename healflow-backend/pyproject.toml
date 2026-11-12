@@ -63,7 +63,8 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
 # B008: `Depends(...)` in argument defaults is the canonical FastAPI DI pattern
-ignore = ["B008"]
+# UP042: keep `(str, Enum)` — StrEnum changes str()/format() of values stored in the DB
+ignore = ["B008", "UP042"]
 
 [tool.mypy]
 python_version = "3.12"
